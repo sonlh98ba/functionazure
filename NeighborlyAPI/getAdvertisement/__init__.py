@@ -4,22 +4,23 @@ import json
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 import logging
-
 def main(req: func.HttpRequest) -> func.HttpResponse:
-
     # example call http://localhost:7071/api/getAdvertisement/?id=5eb6cb8884f10e06dc6a2084
-
     id = req.params.get('id')
     print("--------------->", id)
-    
     if id:
         try:
-            url = "localhost"  # TODO: Update with appropriate MongoDB connection information
+            url = "mongodb://udacitynblydbacc:aPeRPwiiJvoHGtaHrUhIBxD65Q4vvTXRZV96qCXX0PtIq5cbiAMV40CbfGu4wsJkDuMnIdwbR5In8acYfZ5gJQ==@udacitynblydbacc.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@udacitynblydbacc@"
+            # TODO: Update with appropriate MongoDB connection information
             client = pymongo.MongoClient(url)
-            database = client['azure']
+            database = client['neighborlydb']
             collection = database['advertisements']
            
-            query = {'_id': ObjectId(id)}
+           #query = {'_id':id}
+
+            query = {'_id': id}
+
+            print (query)
             result = collection.find_one(query)
             print("----------result--------")
 

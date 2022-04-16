@@ -8,7 +8,7 @@ import json
 from feedgen.feed import FeedGenerator
 from flask import make_response
 from urllib.parse import urljoin
-from werkzeug.contrib.atom import AtomFeed
+#from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -22,8 +22,7 @@ def get_abs_url(url):
 
 @app.route('/feeds/')
 def feeds():
-    feed = AtomFeed(title='All Advertisements feed',
-                    feed_url=request.url, url=request.url_root)
+    #feed = AtomFeed(title='All Advertisements feed',feed_url=request.url, url=request.url_root)
 
     response = requests.get(settings.API_URL + '/getAdvertisements')
     posts = response.json()
@@ -46,7 +45,7 @@ def rss():
     fg = FeedGenerator()
     fg.title('Feed title')
     fg.description('Feed Description')
-    fg.link(href='https://neighborly-client-v1.azurewebsites.net/')
+    fg.link(href='https://neighborlyfrontendst87993.azurewebsites.net/')
     
 
     response = requests.get(settings.API_URL + '/getAdvertisements')
