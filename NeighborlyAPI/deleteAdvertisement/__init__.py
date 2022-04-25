@@ -1,24 +1,28 @@
 import azure.functions as func
+import logging
+import json
+import os
 import pymongo
+from bson.json_util import dumps
 from bson.objectid import ObjectId
+
+
 def main(req: func.HttpRequest) -> func.HttpResponse:
+
     id = req.params.get('id')
+
     if id:
         try:
-            url = "mongodb://udacitynblydbacc:aPeRPwiiJvoHGtaHrUhIBxD65Q4vvTXRZV96qCXX0PtIq5cbiAMV40CbfGu4wsJkDuMnIdwbR5In8acYfZ5gJQ==@udacitynblydbacc.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@udacitynblydbacc@"
-            # TODO: Update with appropriate MongoDB connection information
+            url = os.environ['ConnectionStrings']
             client = pymongo.MongoClient(url)
-            database = client['neighborlydb']
-            collection = database['advertisements']
-            
-            query = {'_id': id}
+            database = client['mongodb20220424']
+            collection = database['adcollection20220424']
+            query = {'_id': ObjectId(id)}
             result = collection.delete_one(query)
             return func.HttpResponse("")
-
-        except:
-            print("could not connect to mongodb")
-            return func.HttpResponse("could not connect to mongodb", status_code=500)
-
+        except Exception as e:
+            logging.error(e)   
+            return func.HttpResponse("Database connection error.", status_code=500)
     else:
         return func.HttpResponse("Please pass an id in the query string",
                                  status_code=400)

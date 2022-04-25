@@ -8,7 +8,7 @@ import json
 from feedgen.feed import FeedGenerator
 from flask import make_response
 from urllib.parse import urljoin
-#from werkzeug.contrib.atom import AtomFeed
+from werkzeug.contrib.atom import AtomFeed
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -22,7 +22,8 @@ def get_abs_url(url):
 
 @app.route('/feeds/')
 def feeds():
-    #feed = AtomFeed(title='All Advertisements feed',feed_url=request.url, url=request.url_root)
+    feed = AtomFeed(title='All Advertisements feed',
+                    feed_url=request.url, url=request.url_root)
 
     response = requests.get(settings.API_URL + '/getAdvertisements')
     posts = response.json()
@@ -45,7 +46,7 @@ def rss():
     fg = FeedGenerator()
     fg.title('Feed title')
     fg.description('Feed Description')
-    fg.link(href='https://neighborlyfrontendst87993.azurewebsites.net/')
+    fg.link(href='https://neighborly-client-v1.azurewebsites.net/')
     
 
     response = requests.get(settings.API_URL + '/getAdvertisements')
@@ -69,18 +70,23 @@ def home():
     posts = response2.json()
     return render_template("index.html", ads=ads, posts=posts)
 
-
 @app.route('/ad/add', methods=['GET'])
 def add_ad_view():
     return render_template("new_ad.html")
 
-
-@app.route('/ad/edit/<id>', methods=['GET'])
-def edit_ad_view(id):
-    response = requests.get(settings.API_URL + '/getAdvertisement?id=' + id)
-    ad = response.json()
-    return render_template("edit_ad.html", ad=ad)
-
+@app.route('/ad/new', methods=['POST'])
+def add_ad_request():
+    # Get item from the POST body
+    req_data = {
+        "title": request.form["title"],
+        "city": request.form["city"],
+        "description": request.form["description"],
+        "email": request.form["email"],
+        "imgUrl": request.form["imgUrl"],
+        "price": request.form["price"]
+    }
+    response = requests.post(settings.API_URL + '/createAdvertisement', json=req_data)
+    return redirect(url_for('home'))
 
 @app.route('/ad/delete/<id>', methods=['GET'])
 def delete_ad_view(id):
@@ -94,36 +100,29 @@ def view_ad_view(id):
     ad = response.json()
     return render_template("view_ad.html", ad=ad)
 
-@app.route('/ad/new', methods=['POST'])
-def add_ad_request():
-    # Get item from the POST body
-    req_data = {
-        'title': request.form['title'],
-        'city': request.form['city'],
-        'description': request.form['description'],
-        'email': request.form['email'],
-        'imgUrl': request.form['imgUrl'],
-        'price': request.form['price']
-    }
-    response = requests.post(settings.API_URL + '/createAdvertisement', json=json.dumps(req_data))
-    return redirect(url_for('home'))
+@app.route('/ad/edit/<id>', methods=['GET'])
+def edit_ad_view(id):
+    response = requests.get(settings.API_URL + '/getAdvertisement?id=' + id)
+    ad = response.json()
+    return render_template("edit_ad.html", ad=ad)
 
 @app.route('/ad/update/<id>', methods=['POST'])
 def update_ad_request(id):
     # Get item from the POST body
     req_data = {
-        'title': request.form['title'],
-        'city': request.form['city'],
-        'description': request.form['description'],
-        'email': request.form['email'],
-        'imgUrl': request.form['imgUrl'],
-        'price': request.form['price']
+        "title": request.form["title"],
+        "city": request.form["city"],
+        "description": request.form["description"],
+        "email": request.form["email"],
+        "imgUrl": request.form["imgUrl"],
+        "price": request.form["price"]
     }
-    response = requests.put(settings.API_URL + '/updateAdvertisement?id=' + id, json=json.dumps(req_data))
+    response = requests.put(settings.API_URL + '/updateAdvertisement?id=' + id, json=req_data)
     return redirect(url_for('home'))
 
 @app.route('/ad/delete/<id>', methods=['POST'])
 def delete_ad_request(id):
+    print(settings.API_URL + '/deleteAdvertisement?id=' + id)
     response = requests.delete(settings.API_URL + '/deleteAdvertisement?id=' + id)
     if response.status_code == 200:
         return redirect(url_for('home'))
