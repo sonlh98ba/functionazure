@@ -1,7 +1,0 @@
-.venv/
-
-.vs/
-.azure
-
-.python_packages
-__pycache__
